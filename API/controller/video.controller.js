@@ -76,23 +76,8 @@ const UploadThumbnail = async (req, res) => {
 const SaveVideoData = async (req, res) => {
   console.log("------------- SaveVideoData controller started -------------");
   try {
-    const {
-      title,
-      description,
-      videoUrl,
-      thumbnailUrl,
-      publicId,
-      thumbnailPublicId,
-    } = req.body;
-
-    const newVideo = new Video({
-      title,
-      description,
-      videoUrl,
-      thumbnailUrl,
-      publicId,
-      thumbnailPublicId,
-    });
+    console.log(req.body);
+    const newVideo = new Video(req.body);
 
     await newVideo.save();
     res

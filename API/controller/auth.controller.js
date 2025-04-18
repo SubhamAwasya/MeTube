@@ -28,7 +28,7 @@ const Login = async (req, res) => {
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password." });
+      return res.status(401).json({ message: "Email in not registered." });
     }
 
     // Compare password
@@ -51,6 +51,11 @@ const Login = async (req, res) => {
         name: user.name,
         email: user.email,
         username: user.username,
+        profileImage: user.profileImage,
+        subscribersCount: user.subscribersCount,
+        subscribers: user.subscribers,
+        subscriptions: user.subscriptions,
+        videos: user.videos,
         token,
       },
     });

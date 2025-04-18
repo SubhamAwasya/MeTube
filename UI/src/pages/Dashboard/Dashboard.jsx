@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MdOutlineDashboard,
   MdVideoLibrary,
@@ -11,7 +11,9 @@ import { dummyVideos } from "../../../dummyVideos";
 import VideoCard from "../../components/VideoCard";
 import { FiMenu, FiX } from "react-icons/fi";
 import { RiHome9Fill } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useUser } from "../../Context";
+import D_VideoCard from "./Components/D_VideoCard";
 
 const dummyStats = {
   subscribers: "1.2K",
@@ -30,6 +32,14 @@ const sidebarLinks = [
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const { user } = useUser();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+    }
+  });
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -110,11 +120,10 @@ function Dashboard() {
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Recent Uploads
         </h2>
-        <div className="grid youtubeGrid gap-2">
-          {dummyVideos.map((video) => (
-            <VideoCard key={video.id} videoData={video} />
-          ))}
-        </div>
+
+        {dummyVideos.map((video) => (
+          <D_VideoCard key={video.id} videoData={video} />
+        ))}
       </main>
     </div>
   );

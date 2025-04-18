@@ -143,7 +143,7 @@ function LoginSignup() {
           >
             {loading ? (
               <>
-                <span className="mr-2">Processing</span>
+                <span className="mr-2">Loading...</span>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               </>
             ) : isSignup ? (

@@ -1,16 +1,30 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useUser } from "../Context";
+import { useNavigate } from "react-router-dom";
 
 function UploadVideo() {
+  // State variables for file inputs
   const [videoFile, setVideoFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
 
+  // Upload control states
   const [isUploading, setIsUploading] = useState(false);
-
   const [videoProgress, setVideoProgress] = useState(0);
   const [thumbnailProgress, setThumbnailProgress] = useState(0);
   const [isCancelled, setIsCancelled] = useState(false);
 
-  // Simulate upload with setInterval
+  const { user } = useUser();
+  const navigate = useNavigate();
+
+  // Redirect unauthenticated users to /auth
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+    }
+  }, [user, navigate]);
+
+  // Simulated progress bar for thumbnail and video upload
   useEffect(() => {
     if (isCancelled) return;
 
@@ -40,6 +54,7 @@ function UploadVideo() {
     };
   }, [isCancelled]);
 
+  // Cancel button handler
   const cancelUpload = () => {
     setIsCancelled(true);
     setIsUploading(false);
@@ -47,10 +62,12 @@ function UploadVideo() {
     setThumbnailProgress(0);
   };
 
+  // Handle selecting a video file
   const handleVideoChange = (e) => {
     setVideoFile(e.target.files[0]);
   };
 
+  // Handle selecting a thumbnail image and convert it to base64
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -60,27 +77,133 @@ function UploadVideo() {
     }
   };
 
-  const handleSubmit = (e) => {
+  // Upload the video file to backend and return its URL
+  async function uploadVideo(setProgress) {
+    const formData = new FormData();
+    formData.append("video", videoFile);
+
+    const response = await axios.post(
+      "http://localhost:1000/video/upload-video",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user.token}`, // Send the token in the headers
+        },
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          console.log("Video upload progress:", percent);
+
+          setProgress(percent);
+        },
+      }
+    );
+
+    return response.data.videoUrl;
+  }
+  // Upload the thumbnail to backend and return its URL
+  async function uploadThumbnail(setProgress) {
+    const formData = new FormData();
+    formData.append("token", user.token);
+    formData.append("thumbnail", dataURLtoFile(thumbnail, "thumbnail.jpg"));
+
+    const response = await axios.post(
+      "http://localhost:1000/video/upload-thumbnail",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user.token}`, // Send the token in the headers
+        },
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          console.log("Thumbnail upload progress:", percent);
+          setProgress(percent);
+        },
+      }
+    );
+
+    return response.data.thumbnailUrl;
+  }
+  // Convert base64 string to File object (for thumbnail upload)
+  function dataURLtoFile(dataUrl, filename) {
+    const arr = dataUrl.split(",");
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mime });
+  }
+
+  // Main form submit handler
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsUploading(true);
-    console.log("Uploading video...", {
-      title: e.target.title.value,
-      description: e.target.description.value,
-      tags: e.target.tags.value.split(",").map((tag) => tag.trim()),
-      videoFile,
-      thumbnail,
-    });
+    setIsCancelled(false);
+    setVideoProgress(0);
+    setThumbnailProgress(0);
+
+    try {
+      // Run both uploads at the same time
+      const [videoLink, thumbnailLink] = await Promise.all([
+        uploadVideo(setVideoProgress),
+        uploadThumbnail(setThumbnailProgress),
+      ]);
+
+      console.log("user id:", user);
+      axios
+        .post(
+          "http://localhost:1000/video/save-video-data",
+          {
+            title: e.target.title.value,
+            description: e.target.description.value,
+            tags: e.target.tags.value.split(",").map((tag) => tag.trim()),
+            video: videoLink,
+            thumbnail: thumbnailLink,
+            userId: user.id,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json", // If you're sending JSON data
+              Authorization: `Bearer ${user.token}`, // Add token to Authorization header
+            },
+          }
+        )
+        .then((response) => {
+          console.log("Video data saved successfully:", response.data);
+          setIsUploading(false);
+        })
+        .catch((error) => {
+          console.error("Failed to save video data:", error);
+          setIsUploading(false);
+        });
+
+      // Optionally redirect or show a success message
+    } catch (err) {
+      console.error("Upload failed:", err);
+      // Optional: show error feedback
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 px-4 py-8 flex justify-center">
+      {/* Uploading State UI */}
       {isUploading ? (
         <div className="w-full max-w-2xl h-fit bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
             Uploading Video
           </h2>
 
-          {/* Thumbnail Upload */}
+          {/* Thumbnail Upload Progress */}
           <div className="mb-4">
             <p className="text-sm font-medium text-gray-700 mb-1">
               Uploading Thumbnail
@@ -96,7 +219,7 @@ function UploadVideo() {
             </p>
           </div>
 
-          {/* Video Upload */}
+          {/* Video Upload Progress */}
           <div className="mb-6">
             <p className="text-sm font-medium text-gray-700 mb-1">
               Uploading Video
@@ -112,7 +235,7 @@ function UploadVideo() {
             </p>
           </div>
 
-          {/* Cancel Button */}
+          {/* Cancel Upload Button */}
           <div className="flex justify-center">
             <button
               onClick={cancelUpload}
@@ -123,12 +246,14 @@ function UploadVideo() {
           </div>
         </div>
       ) : (
+        // Upload Form UI
         <div className="w-full max-w-2xl h-fit bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
             Upload a Video
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Title Input */}
             <div>
               <label className="block text-gray-700 mb-1">Title</label>
               <input
@@ -139,6 +264,7 @@ function UploadVideo() {
               />
             </div>
 
+            {/* Description Input */}
             <div>
               <label className="block text-gray-700 mb-1">Description</label>
               <textarea
@@ -149,6 +275,7 @@ function UploadVideo() {
               ></textarea>
             </div>
 
+            {/* Tags Input */}
             <div>
               <label className="block text-gray-700 mb-1">
                 Tags (comma-separated)
@@ -161,7 +288,7 @@ function UploadVideo() {
               />
             </div>
 
-            {/* THUMBNAIL UPLOAD */}
+            {/* Thumbnail Upload */}
             <div>
               <label className="block text-gray-700 mb-1">Thumbnail</label>
               <div className="relative">
@@ -188,7 +315,7 @@ function UploadVideo() {
               )}
             </div>
 
-            {/* VIDEO FILE UPLOAD */}
+            {/* Video File Upload */}
             <div>
               <label className="block text-gray-700 mb-1">Video File</label>
               <div className="relative">
@@ -207,21 +334,22 @@ function UploadVideo() {
                 </label>
               </div>
               {videoFile && (
-                <p className="text-sm text-gray-600 mt-1">
-                  Selected:{" "}
-                  <span className="font-medium">{videoFile.name}</span>
-                </p>
-              )}
-              {videoFile && (
-                <p className="text-sm text-gray-600 mt-1">
-                  Size:
-                  <span className="font-medium">
-                    {" " + (videoFile.size / (1000 * 1000)).toFixed(2)} MB
-                  </span>
-                </p>
+                <>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Selected:{" "}
+                    <span className="font-medium">{videoFile.name}</span>
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Size:
+                    <span className="font-medium">
+                      {" " + (videoFile.size / (1000 * 1000)).toFixed(2)} MB
+                    </span>
+                  </p>
+                </>
               )}
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition"

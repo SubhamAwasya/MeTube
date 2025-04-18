@@ -1,25 +1,30 @@
 // models/Video.js
 import mongoose from "mongoose";
 
-const videoSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  thumbnails: { type: String, required: true },
-  video: { type: String, required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  views: { type: String, default: "0" },
-  likes: { type: String, default: "0" },
-  dislikes: { type: String, default: "0" },
-  uploadedAt: { type: String },
-  updatedAt: { type: String },
-  description: { type: String },
-  duration: { type: String },
-  tags: [{ type: String }],
-  category: [{ type: String }],
-  commentsCount: { type: Number, default: 0 },
-  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
-  subscribersCount: { type: String, default: "0" },
-  subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-});
+const videoSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    thumbnail: { type: String, required: true },
+    video: { type: String, required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    views: { type: Number, default: 0 },
+    likes: { type: Number, default: 0 },
+    dislikes: { type: Number, default: 0 },
+    description: { type: String },
+    duration: { type: String },
+    tags: [{ type: String }],
+    category: [{ type: String }],
+    commentsCount: { type: Number, default: 0 },
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+  },
+  {
+    timestamps: true,
+  }
+);
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -30,6 +35,7 @@ const userSchema = new mongoose.Schema({
   subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   subscriptions: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   videos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+  videosCount: { type: Number, default: 0 },
 });
 
 const commentSchema = new mongoose.Schema({

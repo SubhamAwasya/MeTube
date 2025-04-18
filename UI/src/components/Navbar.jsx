@@ -113,7 +113,7 @@ function Navbar({ isSidebarOpen, toggleSidebar }) {
             ) : (
               <Link
                 to="/auth"
-                className="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition"
+                className="h-10 w-24 text-center bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition"
               >
                 Sign In
               </Link>
