@@ -17,6 +17,12 @@ function UploadVideo() {
   const { user } = useUser();
   const navigate = useNavigate();
 
+  const URL = {
+    uploadVideo: "http://localhost:1000/video/upload-video",
+    uploadThumbnail: "http://localhost:1000/video/upload-thumbnail",
+    saveVideoData: "http://localhost:1000/video/save-video-data",
+  };
+
   // Redirect unauthenticated users to /auth
   useEffect(() => {
     if (!user) {
@@ -82,24 +88,18 @@ function UploadVideo() {
     const formData = new FormData();
     formData.append("video", videoFile);
 
-    const response = await axios.post(
-      "http://localhost:1000/video/upload-video",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${user.token}`, // Send the token in the headers
-        },
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          console.log("Video upload progress:", percent);
-
-          setProgress(percent);
-        },
-      }
-    );
+    const response = await axios.post(URL.uploadVideo, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${user.token}`, // Send the token in the headers
+      },
+      onUploadProgress: (progressEvent) => {
+        const percent = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+        setProgress(percent);
+      },
+    });
 
     return response.data.videoUrl;
   }
@@ -109,23 +109,18 @@ function UploadVideo() {
     formData.append("token", user.token);
     formData.append("thumbnail", dataURLtoFile(thumbnail, "thumbnail.jpg"));
 
-    const response = await axios.post(
-      "http://localhost:1000/video/upload-thumbnail",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${user.token}`, // Send the token in the headers
-        },
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          console.log("Thumbnail upload progress:", percent);
-          setProgress(percent);
-        },
-      }
-    );
+    const response = await axios.post(URL.uploadThumbnail, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${user.token}`, // Send the token in the headers
+      },
+      onUploadProgress: (progressEvent) => {
+        const percent = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+        setProgress(percent);
+      },
+    });
 
     return response.data.thumbnailUrl;
   }
@@ -159,10 +154,9 @@ function UploadVideo() {
         uploadThumbnail(setThumbnailProgress),
       ]);
 
-      console.log("user id:", user);
       axios
         .post(
-          "http://localhost:1000/video/save-video-data",
+          URL.saveVideoData,
           {
             title: e.target.title.value,
             description: e.target.description.value,
@@ -179,7 +173,6 @@ function UploadVideo() {
           }
         )
         .then((response) => {
-          console.log("Video data saved successfully:", response.data);
           setIsUploading(false);
         })
         .catch((error) => {

@@ -1,6 +1,7 @@
 import { Video } from "../models/models.js";
 import multer from "multer";
 import fs from "fs";
+import mongoose from "mongoose";
 import {
   uploadVideoToCloudinary,
   uploadImageToCloudinary,
@@ -32,7 +33,6 @@ const UploadVideo = async (req, res) => {
 
     try {
       const result = await uploadVideoToCloudinary(req.file.path);
-      console.log("Video URL:" + result);
 
       fs.unlinkSync(req.file.path);
       res
@@ -76,7 +76,6 @@ const UploadThumbnail = async (req, res) => {
 const SaveVideoData = async (req, res) => {
   console.log("------------- SaveVideoData controller started -------------");
   try {
-    console.log(req.body);
     const newVideo = new Video(req.body);
 
     await newVideo.save();
@@ -94,13 +93,28 @@ const SaveVideoData = async (req, res) => {
 const GetAllVideos = async (req, res) => {
   console.log("------------- GetAllVideos controller started -------------");
   try {
-    // Retrieve all videos from the database and sort by creation date (latest first)
-    const videos = await Video.find().sort({ createdAt: -1 });
+    const videos = await Video.aggregate([
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $unset: "user.password", // Remove only the password field from the joined user
+      },
+    ]);
 
-    // Respond with the list of videos
-    res.status(200).json(videos);
+    res.status(200).send(videos);
   } catch (error) {
-    // Handle any error that occurs during retrieval
     console.error("GetAllVideos error =>", error);
     res.status(500).json({ message: "Failed to fetch videos." });
   }
@@ -110,27 +124,89 @@ const GetAllVideos = async (req, res) => {
 // Controller to fetch a single video by its ID
 const GetVideoByID = async (req, res) => {
   console.log("------------- GetVideoByID controller started -------------");
+
   try {
-    // Extract video ID from request parameters
     const { id } = req.params;
 
-    // Find the video by ID
-    const video = await Video.findById(id);
+    // ✅ Validate the ID format first
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid video ID." });
+    }
+
+    // ✅ Fetch video and populate uploader data (excluding password)
+    const video = await Video.findById(id).populate({
+      path: "userId",
+      select: "-password",
+    });
+
     if (!video) {
-      // If video not found, respond with 404
       return res.status(404).json({ message: "Video not found." });
     }
 
-    // Respond with the found video
-    res.status(200).json(video);
+    // ✅ Format the response to match frontend expectation
+    const formattedVideo = {
+      ...video._doc,
+      user: video.userId,
+    };
+    delete formattedVideo.userId;
+
+    res.status(200).json(formattedVideo);
   } catch (error) {
-    // Handle any error that occurs during retrieval
     console.error("GetVideoByID error =>", error);
     res.status(500).json({ message: "Failed to fetch video." });
   }
+
   console.log("------------- GetVideoByID controller ended -------------");
 };
 
+// Get a single video by its ID
+const GetMyVideos = async (req, res) => {
+  console.log("------------- GetMyVideos controller started -------------");
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "User ID is required." });
+    }
+
+    const videos = await Video.aggregate([
+      // Match videos uploaded by this user
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(id), // Ensure it's treated as ObjectId
+        },
+      },
+      // Sort by newest first
+      {
+        $sort: { createdAt: -1 },
+      },
+      // Join user data from users collection
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      // Flatten the user array
+      {
+        $unwind: "$user",
+      },
+      // Remove password from joined user data
+      {
+        $unset: "user.password",
+      },
+    ]);
+
+    // Send the response
+    res.status(200).json(videos);
+  } catch (error) {
+    console.error("GetMyVideos error =>", error);
+    res.status(500).json({ message: "Failed to fetch user videos." });
+  }
+  console.log("------------- GetMyVideos controller ended -------------");
+};
 // Controller to delete a video by its ID
 const DeleteVideoById = async (req, res) => {
   console.log("------------- DeleteVideoById controller started -------------");
@@ -190,4 +266,5 @@ export {
   GetVideoByID,
   DeleteVideoById,
   GetVideosBySearch,
+  GetMyVideos,
 };

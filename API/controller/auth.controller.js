@@ -16,7 +16,6 @@ const Login = async (req, res) => {
 
   try {
     const { email, password } = req.body;
-    console.log(req.body);
 
     // Validate input
     if (!email || !password) {
@@ -101,7 +100,6 @@ const Register = async (req, res) => {
 
   try {
     const { username, email, password } = req.body;
-    console.log({ username, email, password });
 
     // Basic validation
     if (!username || !email || !password) {

@@ -37,6 +37,7 @@ function Sidebar({ isSidebarOpen, toggleSidebar }) {
             <li key={item.name}>
               <Link
                 to={item.path}
+                onClick={toggleSidebar}
                 className={`flex items-center gap-4 px-4 py-2 hover:bg-gray-100 transition ${
                   location.pathname === item.path
                     ? "bg-gray-200 font-semibold"
