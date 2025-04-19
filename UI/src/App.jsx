@@ -15,11 +15,11 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path="upload" element={<UploadVideo />} />
-        <Route path="video/:id" element={<VideoPlayer />} />
-        <Route path="Profile" element={<Profile />} />
-        <Route path="Profile/:id" element={<Profile />} />
-        <Route path="search/:query" element={<SearchResults />} />
+        <Route path="/upload" element={<UploadVideo />} />
+        <Route path="/video/:id" element={<VideoPlayer />} />
+        <Route path="/Profile" element={<Profile />} />
+        <Route path="/Profile/:id" element={<Profile />} />
+        <Route path="/search" element={<SearchResults />} />
       </Route>
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/auth" element={<LoginSignup />} />

@@ -49,10 +49,8 @@ function Profile() {
           <h2 className="text-3xl font-bold text-gray-900">{user.username}</h2>
           <p className="text-gray-600 mt-1">
             <span className="font-medium">{user.subscribersCount}</span>
-            subscribers •<span className="font-medium">
-              {user.videosCount}
-            </span>{" "}
-            videos
+            &nbsp;subscribers •
+            <span className="font-medium">{user.videosCount}</span> videos
           </p>
         </div>
       </div>

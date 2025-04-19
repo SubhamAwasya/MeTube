@@ -4,6 +4,7 @@ import { FiMenu } from "react-icons/fi";
 import { RxAvatar } from "react-icons/rx";
 import { HiFilm } from "react-icons/hi";
 import { useUser } from "../Context";
+import SearchBar from "./SearchBar";
 
 function Navbar({ isSidebarOpen, toggleSidebar }) {
   const { user, logout } = useUser();
@@ -46,14 +47,7 @@ function Navbar({ isSidebarOpen, toggleSidebar }) {
           </div>
 
           {/* Middle Section */}
-          <div className="flex-grow max-w-md mx-4">
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-          </div>
-
+          <SearchBar />
           {/* Right Section */}
           <div className="flex items-center gap-4 relative" ref={menuRef}>
             {isLoggedIn ? (
@@ -71,7 +65,9 @@ function Navbar({ isSidebarOpen, toggleSidebar }) {
                   className="flex items-center text-gray-600 hover:text-red-600 transition focus:outline-none"
                 >
                   <RxAvatar className="text-3xl" />
-                  <span className="ml-2 font-medium">{user.username}</span>
+                  <span className="ml-2 max-md:hidden font-medium">
+                    {user.username}
+                  </span>
                 </button>
 
                 {/* Dropdown menu */}

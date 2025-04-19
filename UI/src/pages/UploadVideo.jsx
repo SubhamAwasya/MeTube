@@ -188,7 +188,7 @@ function UploadVideo() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 px-4 py-8 flex justify-center">
+    <div className="min-h-screen bg-gray-100 rounded-sm px-4 py-8 flex justify-center">
       {/* Uploading State UI */}
       {isUploading ? (
         <div className="w-full max-w-2xl h-fit bg-white p-6 rounded-lg shadow-lg">

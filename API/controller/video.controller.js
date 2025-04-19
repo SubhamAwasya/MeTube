@@ -237,21 +237,46 @@ const GetVideosBySearch = async (req, res) => {
     "------------- GetVideoBySearch controller started -------------"
   );
   try {
-    // Extract search query from request query parameters
     const { query } = req.query;
 
-    // Perform a case-insensitive search on title or description fields
-    const videos = await Video.find({
-      $or: [
-        { title: { $regex: query, $options: "i" } },
-        { description: { $regex: query, $options: "i" } },
-      ],
-    });
+    if (!query || query.trim() === "") {
+      return res.status(400).json({ message: "Search query is required." });
+    }
 
-    // Respond with the matched videos
+    const videos = await Video.aggregate([
+      {
+        $match: {
+          $or: [
+            { title: { $regex: query, $options: "i" } },
+            { description: { $regex: query, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $unset: "user.password",
+      },
+    ]);
+
+    if (videos.length === 0) {
+      return res.status(404).json({ message: "No videos found." });
+    }
+
     res.status(200).json(videos);
   } catch (error) {
-    // Handle any error that occurs during search
     console.error("GetVideoBySearch error =>", error);
     res.status(500).json({ message: "Failed to search videos." });
   }
