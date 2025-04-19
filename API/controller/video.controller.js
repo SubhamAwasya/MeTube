@@ -95,7 +95,7 @@ const GetAllVideos = async (req, res) => {
   try {
     const videos = await Video.aggregate([
       {
-        $sort: { createdAt: -1 },
+        $sample: { size: 20 }, // Fetch 20 random videos; adjust size as needed
       },
       {
         $lookup: {
@@ -120,7 +120,6 @@ const GetAllVideos = async (req, res) => {
   }
   console.log("------------- GetAllVideos controller ended -------------");
 };
-
 // Controller to fetch a single video by its ID
 const GetVideoByID = async (req, res) => {
   console.log("------------- GetVideoByID controller started -------------");

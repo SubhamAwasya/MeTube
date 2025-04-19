@@ -6,32 +6,53 @@ import { format } from "timeago.js";
 import { useParams } from "react-router-dom";
 import { useUser } from "../Context.jsx";
 import axios from "axios";
+import SuggestionCard from "../components/SuggestionCard.jsx";
 
 function VideoPlayer() {
   const [videoData, setVideoData] = useState(null);
+  const [suggestedVideos, setSuggestedVideos] = useState(null);
   const [error, setError] = useState(null);
 
   const { id: videoId } = useParams(); // Get video ID from route
   const { user } = useUser(); // Authenticated user
 
+  // API endpoint (can be moved to a constants/config file)
+  const URL = {
+    getAllVideos: "http://localhost:1000/video/get-all",
+    getVideoById: `http://localhost:1000/video/get/${videoId}`,
+  };
+
   useEffect(() => {
     // Only fetch if user and token exist
-    if (user?.token) {
-      axios
-        .get(`http://localhost:1000/video/get/${videoId}`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        })
-        .then((response) => {
-          setVideoData(response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching video data:", error);
-          setError("Failed to fetch video data.");
-        });
-    }
-  }, [videoId, user?.token]);
+
+    axios
+      .get(URL.getVideoById, {})
+      .then((response) => {
+        setVideoData(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching video data:", error);
+        setError("Failed to fetch video data.");
+      });
+  }, [videoId]);
+
+  // State to store fetched videos
+
+  // useEffect runs once on component mount
+  useEffect(() => {
+    // Fetch all videos from backend
+    axios
+      .get(URL.getAllVideos)
+      .then((response) => {
+        // Save setSuggestedVideos in state
+        setSuggestedVideos(response.data);
+      })
+      .catch((error) => {
+        // Handle fetch error
+        console.error("Error fetching videos:", error);
+        setError("Failed to fetch videos.");
+      });
+  }, []);
 
   if (error) return <div>Error: {error}</div>;
 
@@ -128,7 +149,9 @@ function VideoPlayer() {
 
       {/* Right Section - Suggested videos (optional) */}
       <div className="w-full lg:w-80 flex-shrink-0">
-        <p className="text-sm text-gray-500">Suggestions coming soon...</p>
+        {suggestedVideos.map((video) => (
+          <SuggestionCard key={video._id} videoData={video} />
+        ))}
       </div>
     </div>
   );

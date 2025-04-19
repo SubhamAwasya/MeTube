@@ -69,7 +69,7 @@ function LoginSignup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4 relative">
       {/* Home Link Button */}
       <Link
         to="/"
@@ -78,7 +78,6 @@ function LoginSignup() {
         <AiOutlineHome size={20} />
         <span className="text-sm font-medium">Home</span>
       </Link>
-
       {/* Auth Card */}
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
@@ -167,6 +166,21 @@ function LoginSignup() {
           >
             {isSignup ? "Login" : "Sign Up"}
           </button>
+        </p>
+      </div>
+      {/* Guest login info card - shows dummy credentials for users who don't
+      want to sign up */}
+      <div className="w-full max-w-md p-4 bg-black text-white rounded-xl shadow-lg">
+        <h2 className="text-lg font-semibold mb-2">
+          For quick access without registration, feel free to use our guest
+          credentials.
+        </h2>
+
+        <p className="text-base">
+          - Email: <span className="font-bold text-red-400"> guest</span>
+        </p>
+        <p className="text-base">
+          - Password: <span className="font-bold text-red-400">guest123</span>
         </p>
       </div>
     </div>
