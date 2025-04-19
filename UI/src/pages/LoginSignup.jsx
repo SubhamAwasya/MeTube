@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineHome } from "react-icons/ai";
-import axios from "axios";
 import { baseApiUrl } from "../URL";
 import { useUser } from "../Context";
+import axios from "axios";
 
 function LoginSignup() {
   const [isSignup, setIsSignup] = useState(false); // Toggle between login/signup modes
@@ -73,10 +73,10 @@ function LoginSignup() {
       {/* Home Link Button */}
       <Link
         to="/"
-        className="absolute top-4 left-4 flex items-center gap-1 text-red-600 hover:underline"
+        className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-800 hover:underline text-base font-semibold transition-colors rounded-md"
       >
-        <AiOutlineHome size={20} />
-        <span className="text-sm font-medium">Home</span>
+        <AiOutlineHome size={24} />
+        <span>Home</span>
       </Link>
       {/* Auth Card */}
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
@@ -168,20 +168,32 @@ function LoginSignup() {
           </button>
         </p>
       </div>
+
       {/* Guest login info card - shows dummy credentials for users who don't
       want to sign up */}
-      <div className="w-full max-w-md p-4 bg-black text-white rounded-xl shadow-lg">
-        <h2 className="text-lg font-semibold mb-2">
-          For quick access without registration, feel free to use our guest
-          credentials.
+      <div className="w-full max-w-md p-4 mt-4 bg-white text-gray-800 rounded-xl shadow-md border border-gray-200">
+        <h2 className="flex text-lg font-semibold mb-3">
+          For quick access without registration, feel free to Login with our
+          guest credentials.
         </h2>
 
         <p className="text-base">
-          - Email: <span className="font-bold text-red-400"> guest</span>
+          - Email: <span className="font-bold text-black">guest@gmail.com</span>
         </p>
         <p className="text-base">
-          - Password: <span className="font-bold text-red-400">guest123</span>
+          - Password: <span className="font-bold text-black">guest123</span>
         </p>
+
+        <button
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+          onClick={() => {
+            setEmail("guest@gmail.com");
+            setPassword("guest123");
+            if (isSignup) toggleMode();
+          }}
+        >
+          Fill Details
+        </button>
       </div>
     </div>
   );
