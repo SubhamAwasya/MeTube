@@ -30,7 +30,7 @@ function SearchBar() {
       />
       <button
         onClick={handleSearch}
-        className="flex items-center justify-center px-5 py-2 text-white bg-red-500 rounded-r-full hover:bg-red-600 transition-colors"
+        className="flex items-center justify-center px-5 py-2 text-white bg-red-600 rounded-r-full hover:bg-red-600 transition-colors"
       >
         <svg
           className="w-5 h-5"

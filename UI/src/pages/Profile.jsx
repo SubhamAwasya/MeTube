@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../Context.jsx";
 import axios from "axios";
@@ -16,12 +16,11 @@ function Profile() {
     if (!user) {
       navigate("/auth");
     }
-
     // Fetch user's videos from backend
     axios
-      .get(`http://localhost:1000/video/get-my-videos/${user.id}`, {
+      .get(`http://localhost:1000/video/get-my-videos/${user?.id}`, {
         headers: {
-          Authorization: `Bearer ${user.token}`, // Add token in Authorization header
+          Authorization: `Bearer ${user?.token}`, // Add token in Authorization header
         },
       })
       .then((response) => {
@@ -46,11 +45,11 @@ function Profile() {
           className="w-24 h-24 rounded-full object-cover hover:scale-105 transition"
         />
         <div className="text-center sm:text-left">
-          <h2 className="text-3xl font-bold text-gray-900">{user.username}</h2>
+          <h2 className="text-3xl font-bold text-gray-900">{user?.username}</h2>
           <p className="text-gray-600 mt-1">
-            <span className="font-medium">{user.subscribersCount}</span>
+            <span className="font-medium">{user?.subscribersCount}</span>
             &nbsp;subscribers •
-            <span className="font-medium">{user.videosCount}</span> videos
+            <span className="font-medium">{user?.videosCount}</span> videos
           </p>
         </div>
       </div>
