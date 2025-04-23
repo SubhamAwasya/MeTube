@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import { useUser } from "../Context.jsx";
 import axios from "axios";
 import SuggestionCard from "../components/SuggestionCard.jsx";
+import { baseApiUrl } from "../URL.js";
 
 function VideoPlayer() {
   const [videoData, setVideoData] = useState(null);
@@ -18,8 +19,8 @@ function VideoPlayer() {
 
   // API endpoint (can be moved to a constants/config file)
   const URL = {
-    getAllVideos: "http://localhost:1000/video/get-all",
-    getVideoById: `http://localhost:1000/video/get/${videoId}`,
+    getAllVideos: baseApiUrl + "/video/get-all",
+    getVideoById: baseApiUrl + `/video/get/${videoId}`,
   };
 
   useEffect(() => {

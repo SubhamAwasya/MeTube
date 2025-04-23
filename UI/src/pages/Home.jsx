@@ -1,5 +1,5 @@
 // src/pages/Home.jsx
-
+import { baseApiUrl } from "../URL.js";
 import { useEffect, useState } from "react"; // Hooks for lifecycle and state
 import axios from "axios"; // HTTP client to fetch video data
 import VideoCard from "../components/VideoCard.jsx"; // Component to display each video
@@ -13,7 +13,7 @@ function Home() {
 
   // API endpoint (can be moved to a constants/config file)
   const URL = {
-    getAllVideos: "http://localhost:1000/video/get-all",
+    getAllVideos: baseApiUrl + "/video/get-all",
   };
 
   // useEffect runs once on component mount

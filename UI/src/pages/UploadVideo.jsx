@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useUser } from "../Context";
 import { useNavigate } from "react-router-dom";
+import { baseApiUrl } from "../URL.js";
 
 function UploadVideo() {
   // State variables for file inputs
@@ -18,9 +19,9 @@ function UploadVideo() {
   const navigate = useNavigate();
 
   const URL = {
-    uploadVideo: "http://localhost:1000/video/upload-video",
-    uploadThumbnail: "http://localhost:1000/video/upload-thumbnail",
-    saveVideoData: "http://localhost:1000/video/save-video-data",
+    uploadVideo: baseApiUrl + "/video/upload-video",
+    uploadThumbnail: baseApiUrl + "/video/upload-thumbnail",
+    saveVideoData: baseApiUrl + "/video/save-video-data",
   };
 
   // Redirect unauthenticated users to /auth

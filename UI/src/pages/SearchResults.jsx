@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import VideoCard from "../components/VideoCard";
+import { baseApiUrl } from "../URL.js";
 
 function SearchResults() {
   const location = useLocation();
@@ -14,7 +15,7 @@ function SearchResults() {
 
   // API endpoint (can be moved to a constants/config file)
   const URL = {
-    getSearchVideos: "http://localhost:1000/video/search?query=" + query,
+    getSearchVideos: baseApiUrl + "/video/search?query=" + query,
   };
 
   // useEffect runs once on component mount

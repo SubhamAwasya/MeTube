@@ -1,1 +1,5 @@
-export const baseApiUrl = "http://localhost:1000";
+const isProduction = true;
+
+export const baseApiUrl = isProduction
+  ? "https://metube-ogcb.onrender.com"
+  : "http://localhost:1000";

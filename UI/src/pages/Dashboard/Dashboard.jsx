@@ -6,9 +6,7 @@ import {
   MdComment,
   MdSettings,
 } from "react-icons/md";
-import { AiOutlineVideoCameraAdd } from "react-icons/ai";
 import { dummyVideos } from "../../../dummyVideos";
-import VideoCard from "../../components/VideoCard";
 import { FiMenu, FiX } from "react-icons/fi";
 import { RiHome9Fill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";

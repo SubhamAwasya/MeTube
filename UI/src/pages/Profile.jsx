@@ -4,12 +4,17 @@ import { useUser } from "../Context.jsx";
 import axios from "axios";
 import VideoCard from "../components/VideoCard.jsx";
 import { dummyVideos } from "../../dummyVideos.js";
+import { baseApiUrl } from "../URL.js";
 
 function Profile() {
   const [videos, setVideos] = useState(null);
 
   const { user } = useUser();
   const navigate = useNavigate();
+
+  const URL = {
+    getProfileById: baseApiUrl + `/user/get-profile-by-id/${user?.id}`,
+  };
 
   // Redirect to auth page if user is not logged in
   useEffect(() => {
@@ -18,7 +23,7 @@ function Profile() {
     }
     // Fetch user's videos from backend
     axios
-      .get(`http://localhost:1000/video/get-my-videos/${user?.id}`, {
+      .get(URL.getProfileById, {
         headers: {
           Authorization: `Bearer ${user?.token}`, // Add token in Authorization header
         },
