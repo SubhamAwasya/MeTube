@@ -26,7 +26,7 @@ function SearchBar() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="flex-grow px-5 py-2 text-sm text-gray-700 bg-transparent rounded-l-full focus:outline-none"
+        className="flex-grow min-w-0 px-5 py-2 text-sm text-gray-700 bg-transparent rounded-l-full focus:outline-none"
       />
       <button
         onClick={handleSearch}
