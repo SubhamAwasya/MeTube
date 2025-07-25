@@ -21,11 +21,11 @@ function VideoPlayer() {
   const URL = {
     getAllVideos: baseApiUrl + "/video/get-all",
     getVideoById: baseApiUrl + `/video/get/${videoId}`,
+    Subscribe: baseApiUrl + "/video/subscribe",
   };
 
   useEffect(() => {
     // Only fetch if user and token exist
-
     axios
       .get(URL.getVideoById, {})
       .then((response) => {
@@ -77,6 +77,29 @@ function VideoPlayer() {
     subscribersCount = 0,
   } = videoUser || {};
 
+  function handleSubscribe() {
+    axios
+      .post(
+        URL.Subscribe,
+        {
+          userId: user._id,
+          targetUserId: videoUser._id, // use `targetUserId` to match toggleSubscribe backend
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      )
+      .then((response) => {
+        console.log("Subscription response:", response.data);
+        // Optionally update UI here
+      })
+      .catch((error) => {
+        console.error("Error subscribing:", error);
+      });
+  }
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 min-h-screen">
       {/* Left Section - Video and Info */}
@@ -107,7 +130,10 @@ function VideoPlayer() {
                 {subscribersCount} subscribers
               </p>
             </div>
-            <button className="ml-4 bg-red-600 text-white px-4 py-1 rounded-full hover:bg-red-700">
+            <button
+              onClick={handleSubscribe}
+              className="ml-4 bg-red-600 text-white px-4 py-1 rounded-full hover:bg-red-700"
+            >
               Subscribe
             </button>
           </div>

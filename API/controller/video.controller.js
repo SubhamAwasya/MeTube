@@ -1,4 +1,4 @@
-import { Video } from "../models/models.js";
+import { User, Video } from "../models/models.js";
 import multer from "multer";
 import fs from "fs";
 import mongoose from "mongoose";
@@ -158,7 +158,7 @@ const GetVideoByID = async (req, res) => {
   console.log("------------- GetVideoByID controller ended -------------");
 };
 
-// Get a single video by its ID
+// Controller to Get a single video by its ID
 const GetMyVideos = async (req, res) => {
   console.log("------------- GetMyVideos controller started -------------");
   try {
@@ -282,7 +282,116 @@ const GetVideosBySearch = async (req, res) => {
   console.log("------------- GetVideoBySearch controller ended -------------");
 };
 
+// Controller to like video
+const LikeVideo = async (req, res) => {
+  console.log("------------- LikeVideo controller started -------------");
+  try {
+    const { id } = req.params;
+
+    const video = await Video.findById(id);
+    if (!video) {
+      return res.status(404).json({ message: "Video not found." });
+    }
+
+    video.likes += 1;
+    await video.save();
+
+    res.status(200).json({ message: "Video liked successfully." });
+  } catch (error) {
+    console.error("LikeVideo error =>", error);
+    res.status(500).json({ message: "Failed to like video." });
+  }
+  console.log("------------- LikeVideo controller ended -------------");
+};
+
+// Controller to dislike video
+const DislikeVideo = async (req, res) => {
+  console.log("------------- DislikeVideo controller started -------------");
+  try {
+    const { id } = req.params;
+
+    const video = await Video.findById(id);
+    if (!video) {
+      return res.status(404).json({ message: "Video not found." });
+    }
+
+    video.dislikes += 1;
+    await video.save();
+
+    res.status(200).json({ message: "Video disliked successfully." });
+  } catch (error) {
+    console.error("DislikeVideo error =>", error);
+    res.status(500).json({ message: "Failed to dislike video." });
+  }
+  console.log("------------- DislikeVideo controller ended -------------");
+};
+
+// Controller to subscribe
+const toggleSubscribe = async (req, res) => {
+  console.log(
+    "------------- Toggle Subscribe controller started -------------"
+  );
+  try {
+    const { userId, targetUserId } = req.body;
+
+    if (userId === targetUserId) {
+      return res
+        .status(400)
+        .json({ message: "You cannot subscribe to yourself." });
+    }
+
+    const user = await User.findById(userId);
+    const targetUser = await User.findById(targetUserId);
+
+    if (!user || !targetUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const alreadySubscribed = user.subscriptions.includes(targetUserId);
+
+    if (alreadySubscribed) {
+      // Unsubscribe
+      user.subscriptions = user.subscriptions.filter(
+        (id) => id.toString() !== targetUserId
+      );
+      targetUser.subscribers = targetUser.subscribers.filter(
+        (id) => id.toString() !== userId
+      );
+      targetUser.subscribersCount = Math.max(
+        targetUser.subscribersCount - 1,
+        0
+      );
+
+      await user.save();
+      await targetUser.save();
+
+      return res
+        .status(200)
+        .json({ message: "Unsubscribed successfully.", subscribed: false });
+    } else {
+      // Subscribe
+      user.subscriptions.push(targetUserId);
+      targetUser.subscribers.push(userId);
+      targetUser.subscribersCount += 1;
+
+      await user.save();
+      await targetUser.save();
+
+      return res
+        .status(200)
+        .json({ message: "Subscribed successfully.", subscribed: true });
+    }
+  } catch (error) {
+    console.error("Toggle Subscribe error =>", error);
+    res.status(500).json({ message: "Failed to toggle subscription." });
+  }
+  console.log("------------- Toggle Subscribe controller ended -------------");
+};
+
 export {
+  toggleSubscribe,
+  DislikeVideo,
+  LikeVideo,
   UploadVideo,
   UploadThumbnail,
   SaveVideoData,

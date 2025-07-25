@@ -1,4 +1,4 @@
-const isProduction = false;
+const isProduction = true;
 
 export const baseApiUrl = isProduction
   ? "https://metube-ogcb.onrender.com"
